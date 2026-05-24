@@ -2,6 +2,7 @@ import { loadDeck } from './deck.js';
 import { load, save, exportJSON, importJSON, initState } from './store.js';
 import { nextReviewCardId } from './queue.js';
 import { applyGrade } from './grading.js';
+import { nextStreak } from './streaks.js';
 import {
   buildDoubleCheck, buildWrongMost, buildPractice, buildFull,
   buildClusters, clusterOrder, clusterHeaderAt, score, modeInformsSchedule,
@@ -9,9 +10,13 @@ import {
 import {
   renderQuestion, renderAnswers, renderReviewButtons, renderTwoButtons,
   renderStats, renderHome, renderClusterHeader, renderSummary, renderNav, renderBrowse, renderSettings,
+  celebrationMarkup,
 } from './ui.js';
 
 const view = document.getElementById('view');
+const celebration = document.getElementById('celebration');
+let celebrationTimer = null;
+let streaks = { correctStreak: 0, wrongStreak: 0 }; // in-memory; resets on reload
 const { deck, clusters, indices } = await loadDeck(
   './data/citizenship_2025_newhaven.json', './tools/clusters.json');
 let state = load(deck);
@@ -56,11 +61,27 @@ function currentCardId() {
   return session ? session.order[session.cursor] : nextReviewCardId(state);
 }
 
+// Show a fired hippo in the overlay layer; auto-clear after ~1.5s. Clears any
+// in-flight hippo first so rapid grading never stacks images. The layer lives
+// outside #view, so card re-renders below it are unaffected.
+function showCelebration(fired) {
+  if (celebrationTimer) { clearTimeout(celebrationTimer); celebrationTimer = null; }
+  celebration.innerHTML = celebrationMarkup(fired);
+  celebrationTimer = setTimeout(() => {
+    celebration.innerHTML = '';
+    celebrationTimer = null;
+  }, 1500);
+}
+
 function grade(q) {
   const id = currentCardId();
-  // Clusters is study-only — its grades never touch the schedule (PLAN §3.10).
+  // Clusters is study-only — its grades never touch the schedule (PLAN §3.10)
+  // nor the hippo streak (PLAN §3.11). Same gate guards both.
   if (!session || modeInformsSchedule(session.mode)) {
     state = applyGrade(state, id, q);
+    const r = nextStreak(streaks, q);
+    streaks = { correctStreak: r.correctStreak, wrongStreak: r.wrongStreak };
+    if (r.fired) showCelebration(r.fired);
   }
   if (session) {
     session.marks[String(id)] = q >= 3;
