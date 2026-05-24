@@ -1,5 +1,5 @@
 import { loadDeck } from './deck.js';
-import { load, save } from './store.js';
+import { load, save, exportJSON, importJSON, initState } from './store.js';
 import { nextReviewCardId } from './queue.js';
 import { applyGrade } from './grading.js';
 import {
@@ -8,7 +8,7 @@ import {
 } from './sessions.js';
 import {
   renderQuestion, renderAnswers, renderReviewButtons, renderTwoButtons,
-  renderStats, renderHome, renderClusterHeader, renderSummary, renderNav, renderBrowse,
+  renderStats, renderHome, renderClusterHeader, renderSummary, renderNav, renderBrowse, renderSettings,
 } from './ui.js';
 
 const view = document.getElementById('view');
@@ -162,6 +162,33 @@ function renderBrowseView() {
   view.querySelector('#search')?.addEventListener('input', (e) => { browseFilter.text = e.target.value; renderBrowseView(); });
   wireNav();
 }
-function renderSettingsView() { view.innerHTML = '<p>Settings</p>' + renderNav('settings'); wireNav(); }
+function renderSettingsView() {
+  view.innerHTML = renderSettings(state) + renderNav('settings');
+  const num = (id) => view.querySelector('#' + id);
+  ['maxGap', 'masteryThreshold', 'practicePerCategory'].forEach((k) =>
+    num(k).addEventListener('input', (e) => {
+      state = { ...state, settings: { ...state.settings, [k]: Number(e.target.value) } };
+      save(state); renderSettingsView();
+    }));
+  num('showPreferredOnly').addEventListener('change', (e) => {
+    state = { ...state, settings: { ...state.settings, showPreferredOnly: e.target.checked } };
+    save(state);
+  });
+  num('export').addEventListener('click', () => {
+    const blob = new Blob([exportJSON(state)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'srs_state.json'; a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  num('import').addEventListener('click', () => num('file').click());
+  num('file').addEventListener('change', async (e) => {
+    const text = await e.target.files[0].text();
+    state = importJSON(text, deck); save(state); alert('Imported.'); render();
+  });
+  num('reset').addEventListener('click', () => {
+    if (confirm('Reset all progress?')) { state = initState(deck); save(state); render(); }
+  });
+  wireNav();
+}
 
 render();

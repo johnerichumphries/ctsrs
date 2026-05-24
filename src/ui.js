@@ -122,3 +122,24 @@ export function renderBrowse(deck, state, filter) {
       <input id="search" placeholder="Search…" value="${esc(filter.text || '')}" />
     </div>${rows}`;
 }
+
+export function renderSettings(state) {
+  const s = state.settings;
+  return `
+    <h2>Settings</h2>
+    <label>Max gap (mastered recirculation): <output>${s.maxGap}</output>
+      <input type="range" id="maxGap" min="200" max="600" step="20" value="${s.maxGap}"></label>
+    <label>Mastery threshold (double-check): <output>${s.masteryThreshold}</output>
+      <input type="range" id="masteryThreshold" min="30" max="200" step="5" value="${s.masteryThreshold}"></label>
+    <label>Practice questions per category: <output>${s.practicePerCategory}</output>
+      <input type="range" id="practicePerCategory" min="1" max="6" step="1" value="${s.practicePerCategory}"></label>
+    <label><input type="checkbox" id="showPreferredOnly" ${s.showPreferredOnly ? 'checked' : ''}> Show preferred answers only</label>
+    <div class="actions">
+      <button id="export">Export</button>
+      <button id="import">Import</button>
+      <button id="reset">Reset</button>
+      <input type="file" id="file" accept="application/json" hidden>
+    </div>
+    <p class="muted">2025 USCIS civics test (M-1778, 09/25), New Haven/CT-3. Dynamic answers verified 2026-05-24 —
+      re-verify at <a href="https://www.uscis.gov/citizenship/testupdates" target="_blank" rel="noopener">uscis.gov/citizenship/testupdates</a>.</p>`;
+}
