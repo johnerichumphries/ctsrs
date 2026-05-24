@@ -1,0 +1,31 @@
+{
+  "_comment": "Reuse/relationship data mined from external_civics_test_128_app_data.md and reconciled against the deck's preferredAnswers. DISPLAY-ONLY: this never affects SM-2 scheduling or grading (PLAN.md S3.6 is self-grade only). 'sameAnswer' = questions whose designated preferred answer is an IDENTICAL string (learn one phrase, answer all of them); validated against the deck by tests/clusters.test.mjs. 'thematic' = questions on the same topic but with DIFFERENT answers (looser; for grouped study). 'confusionPairs' = answers users commonly mix up; the note is a candidate display-only hint.",
+  "_source": "external_civics_test_128_app_data.md (reuse map + shared_with fields), reconciled 2026-05-24",
+  "sameAnswer": [
+    { "answer": "Declaration of Independence", "ids": [9, 11, 14, 80] },
+    { "answer": "(U.S.) Constitution", "ids": [2, 82] },
+    { "answer": "The President (of the United States)", "ids": [42, 43, 44, 45] },
+    { "answer": "Supreme Court", "ids": [50, 52] },
+    { "answer": "The Civil War", "ids": [92, 96] },
+    { "answer": "To stop the spread of communism", "ids": [110, 111] },
+    { "answer": "Required by law", "ids": [71, 72] },
+    { "answer": "Vote", "ids": [69, 70] }
+  ],
+  "thematic": [
+    { "topic": "The President (executive powers and roles)", "ids": [41, 42, 43, 44, 45, 46] },
+    { "topic": "Founding documents (Declaration vs Constitution)", "ids": [2, 9, 11, 14, 80, 82] },
+    { "topic": "Who senators/representatives represent, and who elects them", "ids": [31, 32, 33, 34] },
+    { "topic": "Thomas Jefferson", "ids": [78, 87] },
+    { "topic": "James Madison", "ids": [83, 88] },
+    { "topic": "Alexander Hamilton", "ids": [83, 89] },
+    { "topic": "Civil War", "ids": [91, 92, 93, 94, 95, 96] },
+    { "topic": "World War II", "ids": [100, 105, 106, 107] },
+    { "topic": "Cold War / containment of communism", "ids": [108, 109, 110, 111] },
+    { "topic": "September 11, 2001 and after", "ids": [115, 116] }
+  ],
+  "confusionPairs": [
+    { "note": "Memorial Day honors those who DIED; Veterans Day honors those who SERVED.", "ids": [127, 128] },
+    { "note": "14th = birthright citizenship; 15th = all men/race got the vote; 19th = women got the vote.", "ids": [97, 98, 102] },
+    { "note": "Declaration of Independence (1776) vs U.S. Constitution (1787) -- which founding document.", "ids": [9, 11, 82] }
+  ]
+}
