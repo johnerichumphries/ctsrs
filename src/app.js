@@ -61,7 +61,7 @@ function currentCardId() {
   return session ? session.order[session.cursor] : nextReviewCardId(state);
 }
 
-// Show a fired hippo in the overlay layer; auto-clear after ~1.5s. Clears any
+// Show a fired hippo in the overlay layer; auto-clear after ~2.5s. Clears any
 // in-flight hippo first so rapid grading never stacks images. The layer lives
 // outside #view, so card re-renders below it are unaffected.
 function showCelebration(fired) {
@@ -70,7 +70,7 @@ function showCelebration(fired) {
   celebrationTimer = setTimeout(() => {
     celebration.innerHTML = '';
     celebrationTimer = null;
-  }, 1500);
+  }, 2500);
 }
 
 function grade(q) {

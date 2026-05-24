@@ -50,7 +50,7 @@ summary { cursor:pointer; }
 #celebration .hippo {
   max-width: min(70vw, 320px); max-height: 40vh; width: auto; height: auto;
   border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,.45);
-  animation: hippo-pop 1.5s ease forwards;
+  animation: hippo-pop 2.5s ease forwards;
 }
 @keyframes hippo-pop {
   0%   { opacity: 0; transform: scale(.6); }
@@ -60,6 +60,6 @@ summary { cursor:pointer; }
   100% { opacity: 0; transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #celebration .hippo { animation: hippo-fade 1.5s ease forwards; }
+  #celebration .hippo { animation: hippo-fade 2.5s ease forwards; }
   @keyframes hippo-fade { 0%{opacity:0} 15%{opacity:1} 75%{opacity:1} 100%{opacity:0} }
 }

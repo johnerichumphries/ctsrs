@@ -1,4 +1,4 @@
-const CACHE = 'civics-v7'; // bump on every deploy
+const CACHE = 'civics-v8'; // bump on every deploy
 // NOTE: list ONLY files that exist now. `cache.addAll` is atomic — a single 404
 // aborts install. `sessions.js` is added in M5 (Task 12). Final list lands in M7.
 const ASSETS = [
