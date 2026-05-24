@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { buildIndices } from '../src/deck.js';
 import {
   buildDoubleCheck, buildWrongMost, buildPractice, buildFull,
-  buildClusters, clusterOrder, clusterHeaderAt, score,
+  buildClusters, clusterOrder, clusterHeaderAt, score, modeInformsSchedule,
 } from '../src/sessions.js';
 
 const deck = JSON.parse(
@@ -78,4 +78,11 @@ test('score totals and per-category breakdown', () => {
   assert.equal(r.byCategory['Principles of American Government'].correct, 1);
   assert.equal(r.byCategory['Principles of American Government'].total, 2);
   assert.equal(r.byCategory['System of Government'].correct, 1);
+});
+
+test('modeInformsSchedule: only Clusters is exempt from the schedule', () => {
+  assert.equal(modeInformsSchedule('clusters'), false);
+  for (const m of ['review', 'double', 'wrong', 'practice', 'full']) {
+    assert.equal(modeInformsSchedule(m), true);
+  }
 });

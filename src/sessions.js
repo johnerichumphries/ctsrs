@@ -60,3 +60,10 @@ export function score(order, marks, indices) {
   }
   return { score: correct, total: order.length, byCategory };
 }
+
+// Which modes feed the SM-2 schedule. Clusters is study-only: its set header
+// often reveals the answer, so a self-grade there isn't a fair recall signal
+// (PLAN §3.10). Every other mode (including Review) informs the schedule.
+export function modeInformsSchedule(mode) {
+  return mode !== 'clusters';
+}

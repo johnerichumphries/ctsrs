@@ -4,7 +4,7 @@ import { nextReviewCardId } from './queue.js';
 import { applyGrade } from './grading.js';
 import {
   buildDoubleCheck, buildWrongMost, buildPractice, buildFull,
-  buildClusters, clusterOrder, clusterHeaderAt, score,
+  buildClusters, clusterOrder, clusterHeaderAt, score, modeInformsSchedule,
 } from './sessions.js';
 import {
   renderQuestion, renderAnswers, renderReviewButtons, renderTwoButtons,
@@ -58,7 +58,10 @@ function currentCardId() {
 
 function grade(q) {
   const id = currentCardId();
-  state = applyGrade(state, id, q);
+  // Clusters is study-only — its grades never touch the schedule (PLAN §3.10).
+  if (!session || modeInformsSchedule(session.mode)) {
+    state = applyGrade(state, id, q);
+  }
   if (session) {
     session.marks[String(id)] = q >= 3;
     session.cursor += 1;
