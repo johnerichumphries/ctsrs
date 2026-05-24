@@ -8,7 +8,7 @@ import {
 } from './sessions.js';
 import {
   renderQuestion, renderAnswers, renderReviewButtons, renderTwoButtons,
-  renderStats, renderHome, renderClusterHeader, renderSummary, renderNav,
+  renderStats, renderHome, renderClusterHeader, renderSummary, renderNav, renderBrowse,
 } from './ui.js';
 
 const view = document.getElementById('view');
@@ -155,7 +155,13 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Browse/Settings placeholders until Tasks 13–14 land:
-function renderBrowseView() { view.innerHTML = '<p>Browse</p>' + renderNav('browse'); wireNav(); }
+let browseFilter = { cat: 'all', text: '' };
+function renderBrowseView() {
+  view.innerHTML = renderBrowse(deck, state, browseFilter) + renderNav('browse');
+  view.querySelector('#cat')?.addEventListener('change', (e) => { browseFilter.cat = e.target.value; render(); });
+  view.querySelector('#search')?.addEventListener('input', (e) => { browseFilter.text = e.target.value; renderBrowseView(); });
+  wireNav();
+}
 function renderSettingsView() { view.innerHTML = '<p>Settings</p>' + renderNav('settings'); wireNav(); }
 
 render();

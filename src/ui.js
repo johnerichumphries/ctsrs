@@ -102,3 +102,23 @@ export function renderNav(active) {
   const tab = (id, label) => `<button class="navtab ${active === id ? 'on' : ''}" data-nav="${id}">${label}</button>`;
   return `<nav class="bottomnav">${tab('home', 'Home')}${tab('browse', 'Browse')}${tab('settings', 'Settings')}</nav>`;
 }
+
+export function renderBrowse(deck, state, filter) {
+  const opts = ['all', ...new Set(deck.questions.map((q) => q.category))]
+    .map((c) => `<option ${c === filter.cat ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  const rows = deck.questions
+    .filter((q) => filter.cat === 'all' || q.category === filter.cat)
+    .filter((q) => !filter.text || (q.question + ' ' + q.answers.join(' ')).toLowerCase().includes(filter.text.toLowerCase()))
+    .map((q) => {
+      const c = state.cards[String(q.id)];
+      return `<details><summary>Q${q.id}. ${esc(q.question)}</summary>
+        <ul class="answers">${q.answers.map((a) =>
+          `<li>${q.preferredAnswers.includes(a) ? '<strong>' + esc(a) + '</strong>' : esc(a)}</li>`).join('')}</ul>
+        <p class="muted">ef ${c.ef.toFixed(2)} · interval ${c.interval} · due ${c.dueSlide} · lapses ${c.lapses} · seen ${c.timesSeen}</p>
+      </details>`;
+    }).join('');
+  return `<div class="browse-controls">
+      <select id="cat">${opts}</select>
+      <input id="search" placeholder="Search…" value="${esc(filter.text || '')}" />
+    </div>${rows}`;
+}
