@@ -48,3 +48,57 @@ export function renderStats(state) {
   const weak = cards.filter((c) => c.lapses > 0 && c.interval < 12).length;
   return `<header class="stats">Slides: ${state.slidesSeen} · Mastered: ${mastered}/128 · Weak: ${weak}</header>`;
 }
+
+export const MODES = [
+  { id: 'review', label: 'Review', desc: 'Adaptive spaced repetition (default)' },
+  { id: 'double', label: 'Double-check', desc: 'Re-confirm cards you know cold' },
+  { id: 'clusters', label: 'Clusters', desc: 'Drill questions that share an answer/theme' },
+  { id: 'wrong', label: 'Wrong-most', desc: 'Focus on your most-missed cards' },
+  { id: 'practice', label: 'Practice test', desc: '~3 per category, scored' },
+  { id: 'full', label: 'Full test', desc: 'All 128 questions, scored' },
+];
+
+export function renderHome(state, counts) {
+  const resume = state.activeSession
+    ? `<button id="resume" class="resume">Resume ${state.activeSession.mode} test (${state.activeSession.cursor}/${state.activeSession.order.length})</button>`
+    : '';
+  const cards = MODES.map((m) => {
+    const badge = counts[m.id] != null ? `<small>${counts[m.id]}</small>` : '';
+    return `<button class="mode" data-mode="${m.id}"><b>${m.label}</b> ${badge}<span>${m.desc}</span></button>`;
+  }).join('');
+  const hist = (state.testHistory || []).slice(-5).reverse().map((h) =>
+    `<li>${h.mode}: ${h.score}/${h.total} (slide ${h.atSlide})</li>`).join('');
+  return `${resume}<div class="modes">${cards}</div>
+    ${hist ? `<h3>Recent tests</h3><ul class="history">${hist}</ul>` : ''}`;
+}
+
+const TWO_BUTTONS = [
+  { key: '1', label: 'Wrong', q: 0 },
+  { key: '2', label: 'Right', q: 4 },
+];
+export function renderTwoButtons() {
+  return `<div class="grades two">${TWO_BUTTONS.map((b) =>
+    `<button class="grade" data-q="${b.q}">${b.label}</button>`).join('')}</div>`;
+}
+
+export function renderClusterHeader(seg) {
+  if (!seg) return '';
+  const note = seg.note ? `<p class="muted">${esc(seg.note)}</p>` : '';
+  return `<div class="cluster-head">${esc(seg.label)}</div>${note}`;
+}
+
+export function renderSummary(result) {
+  const pass = result.score / result.total >= 0.6;
+  const rows = Object.entries(result.byCategory)
+    .map(([cat, v]) => `<li>${esc(cat)}: ${v.correct}/${v.total}</li>`).join('');
+  return `
+    <h2>${pass ? 'Pass ✅' : 'Keep studying'}</h2>
+    <p class="score">${result.score} / ${result.total} (${Math.round(100 * result.score / result.total)}%)</p>
+    <ul class="bycat">${rows}</ul>
+    <div class="actions"><button id="home-btn">← Home</button></div>`;
+}
+
+export function renderNav(active) {
+  const tab = (id, label) => `<button class="navtab ${active === id ? 'on' : ''}" data-nav="${id}">${label}</button>`;
+  return `<nav class="bottomnav">${tab('home', 'Home')}${tab('browse', 'Browse')}${tab('settings', 'Settings')}</nav>`;
+}

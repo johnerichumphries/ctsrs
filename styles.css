@@ -20,3 +20,16 @@ button:active { transform: translateY(1px); }
 .grades { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; width:100%; }
 .grade { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .grade small { color:#9a9aa3; font-size:11px; }
+.modes { display:grid; gap:10px; }
+.mode { text-align:left; display:flex; flex-direction:column; gap:2px; }
+.mode b { font-size:18px; }
+.mode span { color:#9a9aa3; font-size:13px; }
+.mode small { color:#8fd; }
+.resume { width:100%; background:#21304a; margin-bottom:12px; }
+.grades.two { grid-template-columns: repeat(2, 1fr); }
+.cluster-head { background:#1d1d22; padding:8px 10px; border-radius:8px; font-weight:600; margin-bottom:8px; }
+.bottomnav { position:sticky; bottom:0; display:flex; gap:8px; padding:10px 0; background:#0b0b0c; margin-top:24px; }
+.navtab { flex:1; }
+.navtab.on { border-color:#8fd; color:#8fd; }
+.score { font-size:28px; font-weight:700; }
+.bycat { color:#cfcfd6; } .history { color:#cfcfd6; }
