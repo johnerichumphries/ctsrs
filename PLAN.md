@@ -62,7 +62,7 @@ SM-2's math, retimed from calendar **days** to **slides** (one "slide" = one car
 
 Per-card state: `ef` (ease factor, init **2.5**), `interval` (gap in **slides**), `reps` (consecutive successes), `dueSlide` (the `slidesSeen` value at which the card becomes due), plus bookkeeping `lapses`, `lastSeenSlide`, `timesSeen` (total grades, any mode — drives wrong-most ranking, §3.10).
 
-Constants: `FIRST = 5`, `SECOND = 12`, `LAPSE_GAP = 3`, `MAX_GAP = 400` (exposed as `settings.maxGap`).
+Constants: `FIRST = 5`, `SECOND = 12`, `LAPSE_GAP = 3`, `MAX_GAP = 400` (exposed as `settings.maxGap`), `HARD_FACTOR = 0.8`, `EASY_FACTOR = 1.4` (Review's Hard/Easy interval spread, §3.2/§11 #5).
 
 On review with quality `q`:
 
@@ -71,6 +71,9 @@ if q >= 3:                      // pass
     if reps == 0:      interval = FIRST          // 5
     elif reps == 1:    interval = SECOND         // 12
     else:              interval = round(interval * ef)
+    // Anki-style spread on Review's 4 buttons (Good q=4 unchanged):
+    if q == 3:         interval = max(1, round(interval * HARD_FACTOR))   // Hard, ×0.8
+    elif q == 5:       interval = round(interval * EASY_FACTOR)           // Easy, ×1.4
     reps += 1
     ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
     if ef < 1.3: ef = 1.3
@@ -87,6 +90,7 @@ The **caller** (`grading.js`, not the pure `sm2.js` module) then sets `dueSlide 
 Notes for the implementer:
 - A card is **due** when `dueSlide <= slidesSeen`; the next Review card is always the one with the smallest `dueSlide` (see §3.5).
 - Worked example (all Good, `ef` 2.5): intervals `5 → 12 → 30 → 75 → 188 → 400 (capped from 470) → 400 …` — a mastered card resurfaces ~once per 400 slides.
+- **Hard/Easy spread (§3.2):** on a pass, Hard multiplies the Good interval by `HARD_FACTOR` (0.8) and Easy by `EASY_FACTOR` (1.4); Good (`q=4`) is unmodified. So the four Review buttons differ from the very first review (new card: Again 3 · Hard 4 · Good 5 · Easy 7) in both the immediate gap and — via the unchanged EF deltas — long-term ease. The five 2-button modes grade only Wrong=`q0`/Right=`q4`, which carry no modifier, so they are unaffected. Full rationale: `docs/superpowers/specs/2026-05-24-hard-easy-modifiers-design.md`. (§11 #5.)
 - Keep `sm2.js` a standalone, **pure** module exporting `schedule(state, q) -> newState` that returns exactly `{ef, interval, reps, lapses}` in slides — **no DOM, no storage, no dates, no jitter, no global counter** (jitter, `dueSlide`, `slidesSeen`, `timesSeen` are the caller's job, §3.5/§4). It must be unit-testable in Node (§9).
 
 ### 3.4 Lapse behavior (native same-session relearn)
@@ -394,7 +398,7 @@ Alternative (only if §2 "no build step" is ever reversed): Vite + a `gh-pages` 
 2. **`masteryThreshold`** (double-check cutoff; default 75) — feel parameter; retune after use.
 3. **`practicePerCategory`** (default 3 → ~21-question practice test) — retune for desired length.
 4. **Practice "pass" rule** — currently the 60% ratio (`correct/total ≥ 0.6`) rather than the literal 12/20. Revisit if a stricter exact-rule exam mode is wanted.
-5. **Hard button:** keep pure SM-2 (Hard = normal growth with EF penalty) or add Anki-style Hard = `interval × 1.2`? Default: pure SM-2.
+5. **Hard button:** ✅ **Resolved (2026-05-24): Anki-style spread.** Hard ×`HARD_FACTOR` (0.8) and Easy ×`EASY_FACTOR` (1.4) on the Good baseline (Good unchanged); EF deltas unchanged. The 4 Review buttons now differ from the first review, so each gap preview is meaningful. See §3.3 and `docs/superpowers/specs/2026-05-24-hard-easy-modifiers-design.md`.
 6. **Leeches:** flag cards with `lapses ≥ 8` for attention? Default: no — wrong-most already surfaces the worst offenders.
 7. **Sync:** confirm manual export/import is enough, or add a later gist/Drive sync milestone?
 8. **Oral practice:** add Web Speech `SpeechSynthesis` to read the question aloud (the real test is oral)? Default: defer to §12.
