@@ -143,3 +143,14 @@ export function renderSettings(state) {
     <p class="muted">2025 USCIS civics test (M-1778, 09/25), New Haven/CT-3. Dynamic answers verified 2026-05-24 —
       re-verify at <a href="https://www.uscis.gov/citizenship/testupdates" target="_blank" rel="noopener">uscis.gov/citizenship/testupdates</a>.</p>`;
 }
+
+// Builds the <img> for a fired hippo (PLAN §3.11). Pure string — app.js injects
+// it into #celebration and owns the auto-dismiss timer.
+export function celebrationMarkup(fired) {
+  if (!fired) return '';
+  const file = fired.kind === 'happy' ? `hippohappy_${fired.n}` : `hipposad_${fired.n}`;
+  const alt = fired.kind === 'happy'
+    ? `Happy hippo — ${fired.n} in a row!`
+    : `Sad hippo — ${fired.n} wrong in a row`;
+  return `<img class="hippo" src="./images/${file}.png" alt="${esc(alt)}">`;
+}
