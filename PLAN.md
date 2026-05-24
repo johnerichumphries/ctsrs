@@ -126,7 +126,7 @@ Display (on reveal, all card-showing modes): render `preferredAnswers` first and
 ### 3.10 Study modes (six lenses on one schedule)
 Full design: `docs/superpowers/specs/2026-05-24-study-modes-design.md`.
 
-**Unifying principle.** One deck, one scheduler (`sm2.js`), one `slidesSeen` clock, one `localStorage` blob. Modes differ in only two ways: **(a) which cards they select and in what order**, and **(b) the grade UI** (4-button Review vs. 2-button Wrong/Right). **Every grade in every mode** flows through the single grading pipeline (`grading.js`) that runs `sm2.js`, sets `dueSlide`+jitter, and bumps `slidesSeen`/`timesSeen`/`lastSeenSlide`. Because the five non-Review modes select cards **without consulting `dueSlide`**, their SM-2 updates are invisible *within* that mode and only surface as ordering when the user returns to **Review** — i.e. *Wrong/Right informs the algorithm, but only affects ordering back in Review*.
+**Unifying principle.** One deck, one scheduler (`sm2.js`), one `slidesSeen` clock, one `localStorage` blob. Modes differ in only two ways: **(a) which cards they select and in what order**, and **(b) the grade UI** (4-button Review vs. 2-button Wrong/Right). **Every grade flows through the single grading pipeline** (`grading.js`) that runs `sm2.js`, sets `dueSlide`+jitter, and bumps `slidesSeen`/`timesSeen`/`lastSeenSlide` — **except Clusters, which is study-only and never touches the schedule** (its set header often reveals the answer, so a self-grade there isn't a fair recall signal; decision 2026-05-24, `docs/superpowers/specs/2026-05-24-clusters-study-only-design.md`). The other non-Review modes (Double-check, Wrong-most, Practice, Full) select cards **without consulting `dueSlide`**, so their SM-2 updates are invisible *within* that mode and only surface as ordering when the user returns to **Review** — i.e. *Wrong/Right informs the algorithm, but only affects ordering back in Review*. Clusters informs nothing.
 
 **Grade mapping (2-button modes):** **Wrong = `q=0`** (lapse), **Right = `q=4`** (Good). Hard/Easy granularity exists only in Review.
 
@@ -134,14 +134,14 @@ Full design: `docs/superpowers/specs/2026-05-24-study-modes-design.md`.
 |---|---|---|---|---|
 | **Review** (default) | soonest-due (`min dueSlide`, tie-break `id`), continuous | Again/Hard/Good/Easy → 0/3/4/5 | no (stream) | no |
 | **Double-check** | mastered set: `interval ≥ masteryThreshold` (default **75**), shuffled | Wrong/Right → 0/4 | yes (one pass) | no |
-| **Clusters** | `tools/clusters.json` sets, group-by-group: `sameAnswer` → `thematic` → `confusionPairs` (note shown as "don't confuse" hint) | Wrong/Right → 0/4 | yes | no |
+| **Clusters** | `tools/clusters.json` sets, group-by-group: `sameAnswer` → `thematic` → `confusionPairs` (note shown as "don't confuse" hint) | Wrong/Right *(study-only — no schedule effect)* | yes | no |
 | **Wrong-most** | cards with `lapses ≥ 1` & `timesSeen ≥ 3`, ranked by lapse rate `lapses/timesSeen` desc (tie-break `lapses`, `id`) | Wrong/Right → 0/4 | yes | no |
 | **Practice test** | `practicePerCategory` (default **3**) random per category, combined & shuffled (~21) | Wrong/Right → 0/4 | yes | ✅ score + per-category |
 | **Full test** | all 128, shuffled | Wrong/Right → 0/4 | yes | ✅ score + per-category |
 
 **Per-mode notes:**
 - **Double-check** — snapshot the mastered set at session start; a card marked Wrong lapses (interval → 3) and falls out of the set next time. The mastered cutoff `masteryThreshold` is a Setting (75 ≈ four-plus correct in a row, the 4th step `5→12→30→75`).
-- **Clusters** — within a set, show its questions back-to-back so the connection lands; a header names the set ("Same answer: The President" / "Theme: World War II" / "Don't confuse: …"). Cluster data is display/selection-only; it never affects scheduling.
+- **Clusters** — within a set, show its questions back-to-back so the connection lands; a header names the set ("Same answer: The President" / "Theme: World War II" / "Don't confuse: …"). **Study-only: neither Wrong nor Right touches the schedule** (the set header often gives the answer away, so a self-grade isn't a fair recall signal) — `grade()` skips the pipeline when `modeInformsSchedule(mode)` is false. Cluster data is display/selection-only and never affects scheduling either.
 - **Wrong-most** — the `timesSeen ≥ 3` floor stops a single early miss (`1/1`) from dominating the ranking.
 - **Practice / Full test** — on completion show **score/total**, **pass/fail** (pass when `correct/total ≥ 0.6`, the 12/20 real-exam ratio), and a **per-category breakdown**; append the result to `testHistory` (§6).
 
