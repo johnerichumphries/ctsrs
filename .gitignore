@@ -15,3 +15,6 @@ external_civics_test_128_app_data.md
 
 # Master spec — keep local only, off the public repo (old copies remain in git history)
 PLAN.md
+
+# Dev-only tooling deps (sharp for one-off image optimization)
+node_modules/

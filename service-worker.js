@@ -1,4 +1,4 @@
-const CACHE = 'civics-v6'; // bump on every deploy
+const CACHE = 'civics-v7'; // bump on every deploy
 // NOTE: list ONLY files that exist now. `cache.addAll` is atomic — a single 404
 // aborts install. `sessions.js` is added in M5 (Task 12). Final list lands in M7.
 const ASSETS = [
@@ -7,6 +7,10 @@ const ASSETS = [
   './src/queue.js', './src/sessions.js', './src/store.js', './src/ui.js',
   './data/citizenship_2025_newhaven.json', './tools/clusters.json',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
+  './images/hippohappy_5.png', './images/hippohappy_10.png',
+  './images/hippohappy_15.png', './images/hippohappy_25.png',
+  './images/hipposad_3.png', './images/hipposad_6.png', './images/hipposad_9.png',
+  './images/hipposad_12.png', './images/hipposad_20.png',
 ];
 
 self.addEventListener('install', (e) => {
