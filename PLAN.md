@@ -1,6 +1,6 @@
 # Citizenship SRS — Build Plan (Claude Code)
 
-A personal, single-user flashcard app for the **2025 USCIS civics test (128 questions)**, localized to **New Haven, CT**. Runs on desktop and Android as an installable, offline PWA. The default **Review** mode schedules with **slide-based SM-2** (SM-2's math retimed from calendar days to "slides" — cards shown — so it runs continuously with no daily limits; see §3.3 and `docs/superpowers/specs/2026-05-24-slide-based-sm2-scheduling-design.md`). Five additional **study modes** (§3.10) drill the same deck in different ways — double-check, clusters, wrong-most, practice test, full test — all feeding the one schedule.
+A personal, single-user flashcard app for the **2025 USCIS civics test (128 questions)**, localized to **New Haven, CT**. Runs on desktop and Android as an installable, offline PWA. The default **Review** mode schedules with **slide-based SM-2** (SM-2's math retimed from calendar days to "slides" — cards shown — so it runs continuously with no daily limits; see §3.3 and `docs/superpowers/specs/2026-05-24-slide-based-sm2-scheduling-design.md`). Five additional **study modes** (§3.10) drill the same deck in different ways — double-check, clusters, wrong-most, practice test, full test — all but **Clusters** feed the one schedule (Clusters is study-only, §3.10).
 
 This document is the spec and the source of truth. Decisions in §3 are **locked** unless the open questions in §11 say otherwise — do not re-litigate them mid-build. It integrates three approved design specs in `docs/superpowers/specs/`: slide-based SM-2 scheduling, preferred ("best") answers, and study modes.
 
@@ -34,7 +34,7 @@ This document is the spec and the source of truth. Decisions in §3 are **locked
 - **Hosting:** GitHub Pages, served from repo root of `main`, **public repo** (Pages on private repos needs a paid plan; the content is public-domain USCIS material, so public is fine).
 - **Offline:** service worker precaches the app shell + question/cluster JSON (cache-first).
 - **Cards:** sourced from `data/citizenship_2025_newhaven.json` (provided; schema in §5). Cluster groupings from `tools/clusters.json`.
-- **One engine, many lenses:** a single pure scheduler (`sm2.js`) and a single grading pipeline (`grading.js`) serve every mode; modes differ only in **card selection** and **grade-button granularity** (§3.10).
+- **One engine, many lenses:** a single pure scheduler (`sm2.js`) and a single grading pipeline (`grading.js`) serve every mode **except Clusters** (study-only — §3.10); modes differ only in **card selection** and **grade-button granularity** (§3.10).
 
 Rationale for "no build step": Pages serves files as-is, relative paths just work, and there is no CI/transpile/deploy action to maintain. A bundler (Vite) buys module ergonomics we don't need for a handful of files and costs a `gh-pages` build/deploy workflow. See §10 alternative if this is ever revisited.
 
@@ -160,15 +160,15 @@ ctsrs/                           # repo root = Pages publish dir (repo: johneric
 │   ├── sm2.js                   # PURE scheduling fn (unit-tested) — no dates/jitter/storage
 │   ├── grading.js               # single apply-a-grade pipeline (sm2 + dueSlide/jitter + counters)
 │   ├── deck.js                  # load + validate question JSON & clusters.json; category/cluster indices
-│   ├── queue.js                 # Review continuous selection (min dueSlide), init shuffle, jitter, slidesSeen
+│   ├── queue.js                 # Review continuous selection (min dueSlide) + init shuffle (jitter/slidesSeen live in grading.js)
 │   ├── sessions.js              # finite session builders (double-check/clusters/wrong-most/practice/full) + score()
 │   ├── store.js                 # localStorage load/save, export/import, migration, testHistory, activeSession
 │   └── ui.js                    # render card, reveal, grade buttons (2/4), stats, mode launcher, test summary, settings
 ├── data/
 │   └── citizenship_2025_newhaven.json   # provided; card source of truth
 ├── icons/
-│   ├── icon-192.png             # TODO (§8.4)
-│   └── icon-512.png             # TODO (§8.4)
+│   ├── icon-192.png             # generated placeholder (§8.4)
+│   └── icon-512.png             # generated placeholder (§8.4)
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── tests/
@@ -184,7 +184,7 @@ ctsrs/                           # repo root = Pages publish dir (repo: johneric
 ├── docs/superpowers/
 │   ├── specs/                   # design specs (slide-SM2, preferred answers, study modes)
 │   └── plans/                   # implementation plans
-├── README.md                    # deploy + usage (write during finish milestone)
+├── README.md                    # deploy + usage + provenance (done)
 └── PLAN.md                      # this file (master spec)
 ```
 
@@ -261,7 +261,7 @@ Key: `citizenship_srs_v1`. Value (JSON):
 }
 ```
 - Every card has a record from first init (the old "absent ⇒ new" rule is gone); a card is **due** when `dueSlide <= slidesSeen`.
-- `timesSeen` increments on every grade in every mode (drives wrong-most ranking).
+- `timesSeen` increments on every grade in every mode **except Clusters** (study-only, §3.10); it drives wrong-most ranking.
 - `activeSession` holds only session bookkeeping — each grade's SM-2 effect is already written to `cards`, so abandoning a test keeps the learning.
 - **Removed vs. the old day-based schema:** the `daily` block, `newPerDay`, `maxReviewsPerDay`, `relearnInSession`, and per-card `due`/`lastReviewed`.
 - **Migrate on `version` bump** (now **3**): from v2, add `timesSeen: 0` per card, default `masteryThreshold`/`practicePerCategory`, set `testHistory: []`, `activeSession: null`. Never silently drop user state.
@@ -331,8 +331,8 @@ Keep styling minimal, high-contrast, large tap targets, system font stack, dark-
 ### 8.3 Install
 Android Chrome offers "Install app" once manifest + SW + HTTPS criteria are met. Document the "Add to Home Screen" path in README. (iOS is out of scope but generally works in a degraded way.)
 
-### 8.4 Icons — **TODO during build**
-Need `icon-192.png` and `icon-512.png` (512 should be maskable-safe: keep content within the central ~80%). Quick options: generate a flat tile with "🇺🇸/Civics" text, or any placeholder; replace later. Not a blocker for logic milestones.
+### 8.4 Icons — **done (v1.0)**
+`icon-192.png` and `icon-512.png` ship as generated, maskable-safe placeholders (a gold ring on the dark theme, content within the central ~80%). Replace with custom art anytime: drop in the two PNGs and bump the SW cache.
 
 ---
 
@@ -384,9 +384,9 @@ Need `icon-192.png` and `icon-512.png` (512 should be maskable-safe: keep conten
 
 1. Repo is **`johnerichumphries/ctsrs`** (already exists); ensure it is **public** (Pages on free plans needs public) and push all files to `main`.
 2. **Settings → Pages → Build and deployment → Source: "Deploy from a branch" → Branch: `main` / `/ (root)` → Save.**
-3. Wait for the green check; site at `https://johnerichumphries.github.io/ctsrs/`.
+3. Wait for the green check. **Note:** the account has a custom domain, so `https://johnerichumphries.github.io/ctsrs/` 301-redirects to **`https://johnerichumphries.com/ctsrs/`** (the user's academic GitHub Pages domain) — that custom-domain URL is the live app.
 4. Open on desktop to verify; then on Android Chrome → ⋮ → **Install app / Add to Home Screen**.
-5. **Updating:** edit → commit → push; **bump the SW cache version** (`civics-vN`) so clients refresh. With `skipWaiting()`+`clients.claim()`, one reload after the SW updates picks up changes (occasionally two).
+5. **Updating:** edit → commit → push; **bump the SW cache version** (`civics-vN`, currently `v6`) so clients refresh. With `skipWaiting()`+`clients.claim()`, one reload after the SW updates picks up changes (occasionally two). The app is kept out of search via `<meta name="robots" content="noindex, nofollow">` in `index.html` (a `robots.txt` here wouldn't apply — it would sit under `/ctsrs/`, which crawlers ignore).
 
 Alternative (only if §2 "no build step" is ever reversed): Vite + a `gh-pages` GitHub Action publishing `dist/` to a `gh-pages` branch, with `base: "/ctsrs/"` set in `vite.config`. Not recommended for this scope.
 
@@ -403,8 +403,8 @@ Alternative (only if §2 "no build step" is ever reversed): Vite + a `gh-pages` 
 7. **Sync:** confirm manual export/import is enough, or add a later gist/Drive sync milestone?
 8. **Oral practice:** add Web Speech `SpeechSynthesis` to read the question aloud (the real test is oral)? Default: defer to §12.
 9. **Senior 65/20 mode:** ✅ **Decided (2026-05-24): include a filter.** Add a Study/Browse filter to drill only the 20 `seniorExemption` cards (the asterisked set). A dedicated 65/20 *test* (10 asked, pass 6) reusing the test machinery is deferred (§12). Data already supports it; no scheduling change.
-10. **Repo name / username:** ✅ **Resolved** — `johnerichumphries/ctsrs`; Pages URL `https://johnerichumphries.github.io/ctsrs/`. Manifest display name stays "Citizenship SRS". Ensure the repo is public before enabling Pages.
-11. **Icons:** generate a placeholder now or supply your own?
+10. **Repo name / username:** ✅ **Resolved** — `johnerichumphries/ctsrs` (public). Live at **`https://johnerichumphries.com/ctsrs/`** — the `…github.io/ctsrs/` URL 301-redirects there because the account has a custom domain (the user's academic site). App is `noindex`'d. Manifest display name stays "Citizenship SRS".
+11. **Icons:** ✅ **Resolved (2026-05-24):** shipped a generated gold-ring maskable placeholder (§8.4); swap in custom art anytime.
 
 ---
 
