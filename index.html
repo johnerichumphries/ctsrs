@@ -6,11 +6,17 @@
   <meta name="theme-color" content="#0b0b0c" />
   <title>Citizenship SRS</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
   <main id="app">
     <section id="view"></section>
   </main>
   <script type="module" src="./src/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+    }
+  </script>
 </body>
 </html>
