@@ -2,13 +2,13 @@
 
 An offline, installable flashcard app for the **2025 USCIS civics test (128 questions)**, localized to **New Haven, CT (CT-3)**. It runs in any modern browser and installs to an Android home screen as a PWA. The default **Review** mode uses **slide-based SM-2** spaced repetition; five extra study modes drill the same deck different ways. All progress is stored locally in your browser — no accounts, no backend.
 
-**Live app:** https://johnerichumphries.github.io/ctsrs/
+**Live app:** https://johnerichumphries.com/ctsrs/  (the `…github.io/ctsrs/` URL redirects here)
 
 ## Features
 
 - **128 self-graded flashcards** — reveal the answer, then grade your own recall.
 - **Preferred answers** — the easiest answer(s) to memorize are shown **bold first**; the rest appear under "Other acceptable answers" (toggle off in Settings).
-- **Six study modes** (below), all feeding one schedule.
+- **Six study modes** (below) — five feed the one schedule; **Clusters** is study-only.
 - **Works offline** after the first load; **installable** ("Add to Home Screen").
 - **Resumes exactly** where you left off — Review position, an unfinished test mid-question, all learning intact.
 - **Manual backup** — export/import your progress as JSON (the only way to move between devices).
@@ -19,16 +19,16 @@ An offline, installable flashcard app for the **2025 USCIS civics test (128 ques
 |---|---|
 | **Review** (default) | Continuous spaced repetition — surfaces the soonest-due card. 4 grades: Again / Hard / Good / Easy. |
 | **Double-check** | Re-confirm cards you already know cold (mastered set). Wrong / Right. |
-| **Clusters** | Drill questions grouped by shared answer, theme, or common confusion. Wrong / Right. |
+| **Clusters** | Drill questions grouped by shared answer, theme, or common confusion. Wrong / Right — **study-only** (doesn't affect scheduling). |
 | **Wrong-most** | Focus on your most-missed cards (ranked by lapse rate). Wrong / Right. |
 | **Practice test** | ~3 questions per category, scored with a per-category breakdown. |
 | **Full test** | All 128 questions, scored with a per-category breakdown. |
 
-Every grade in every mode feeds the single SM-2 schedule, so a card you miss during a test resurfaces sooner in Review. Passing a test is **≥ 60%** (the 12/20 real-exam ratio).
+Every grade — except in **Clusters**, which is study-only (its header often gives the answer away) — feeds the single SM-2 schedule, so a card you miss during a test resurfaces sooner in Review. Passing a test is **≥ 60%** (the 12/20 real-exam ratio).
 
 ## Install & use
 
-1. Open the live app on your phone (Android Chrome): https://johnerichumphries.github.io/ctsrs/
+1. Open the live app on your phone (Android Chrome): https://johnerichumphries.com/ctsrs/
 2. Menu (⋮) → **Install app** / **Add to Home Screen**. It launches standalone and works offline.
 3. Pick a mode and study. Tap the card (or press **Space**) to reveal the answer, then grade it:
    - Review: keys **1–4** = Again / Hard / Good / Easy.
@@ -43,7 +43,7 @@ Hosted free on **GitHub Pages** from the repo root of `main` (public repo).
 
 1. Push to `main`.
 2. **Settings → Pages → Build and deployment → Source: "Deploy from a branch" → Branch `main` / `/ (root)` → Save.**
-3. The site goes live at `https://johnerichumphries.github.io/ctsrs/`.
+3. The site goes live at `https://johnerichumphries.com/ctsrs/` (the `…github.io/ctsrs/` URL 301-redirects there, since the account uses a custom domain).
 
 **When you update the app:** edit → commit → push, and **bump the service-worker cache version** (`CACHE = 'civics-vN'` in [`service-worker.js`](service-worker.js)) so installed clients pick up the change on the next reload.
 
